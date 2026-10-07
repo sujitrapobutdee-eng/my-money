@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>บัญชีรายรับ-รายจ่าย</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#f4f6f8;
+  color:#222;
+}
+.container{
+  width:min(900px,94%);
+  margin:20px auto;
+}
+.card{
+  background:white;
+  border-radius:18px;
+  padding:20px;
+  margin-bottom:16px;
+  box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+h1,h2,h3{margin-top:0}
+input{
+  width:100%;
+  padding:13px;
+  border:1px solid #ccc;
+  border-radius:10px;
+  font-size:16px;
+  margin:6px 0 12px;
+}
+button{
+  border:0;
+  border-radius:10px;
+  padding:12px 16px;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+  background:#222;
+  color:white;
+}
+button.secondary{
+  background:#eee;
+  color:#222;
+}
+button.delete{
+  background:#eee;
+  color:#c00;
+}
+.hidden{display:none!important}
+.center{
+  max-width:430px;
+  margin:60px auto;
+}
+.actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.actions button{flex:1}
+.message{
+  margin-top:12px;
+  padding:10px;
+  border-radius:10px;
+  background:#f1f1f1;
+}
+.datebox{
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+.datebox label{
+  font-weight:bold;
+  white-space:nowrap;
+}
+.columns{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+.section-title{
+  text-align:center;
+  font-size:22px;
+  font-weight:bold;
+  margin-bottom:15px;
+}
+.entry{
+  background:#f7f7f7;
+  border-radius:12px;
+  padding:10px;
+  margin-bottom:10px;
+}
+.entry-row{
+  display:grid;
+  grid-template-columns:1fr 110px;
+  gap:8px;
+}
+.entry input{
+  margin:0;
+}
+.entry button{
+  width:100%;
+  margin-top:8px;
+}
+.add{
+  width:100%;
+  background:#eee;
+  color:#222;
+}
+.save{
+  width:100%;
+  font-size:18px;
+}
+.summary-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+.summary-box{
+  background:#f7f7f7;
+  border-radius:14px;
+  padding:15px;
+}
+.summary-label{
+  color:#777;
+}
+.summary-value{
+  font-size:24px;
+  font-weight:bold;
+  margin-top:5px;
+}
+.balance{
+  text-align:center;
+  border:2px solid #ddd;
+  border-radius:15px;
+  padding:18px;
+  margin-top:14px;
+}
+.balance-value{
+  font-size:32px;
+  font-weight:bold;
+  margin:5px;
+}
+.history{
+  border-bottom:1px solid #ddd;
+  padding:15px 0;
+}
+.history:last-child{
+  border-bottom:0;
+}
+.history-top{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  font-weight:bold;
+}
+.history-detail{
+  color:#777;
+  font-size:14px;
+  margin-top:6px;
+}
+.history button{
+  margin-top:9px;
+}
+.green{color:green}
+.red{color:#d00}
+
+@media(max-width:600px){
+  .columns{
+    grid-template-columns:1fr;
+  }
+  .summary-grid{
+    grid-template-columns:1fr;
+  }
+  .entry-row{
+    grid-template-columns:1fr;
+  }
+  .datebox{
+    flex-direction:column;
+    align-items:stretch;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- LOGIN -->
+<div id="loginPage" class="center">
+  <div class="card">
+    <h1>💰 บัญชีรายรับ-รายจ่าย</h1>
+    <p>เข้าสู่ระบบเพื่อดูประวัติของคุณ</p>
+
+    <label>ชื่อผู้ใช้</label>
+    <input id="username" maxlength="30" placeholder="เช่น somchai">
+
+    <label>รหัสผ่าน</label>
+    <input id="password" type="password" maxlength="72" placeholder="อย่างน้อย 6 ตัวอักษร">
+
+    <div class="actions">
+      <button id="loginBtn">🔐 เข้าสู่ระบบ</button>
+      <button id="registerBtn" class="secondary">📝 สร้างบัญชี</button>
+    </div>
+
+    <div id="loginMessage" class="message hidden"></div>
+  </div>
+</div>
+
+
+<!-- APP -->
+<div id="appPage" class="hidden">
+
+  <div class="card">
+    <div class="datebox">
+      <div>
+        <div style="color:#777">บัญชีที่กำลังใช้งาน</div>
+        <strong id="currentUser"></strong>
+      </div>
+
+      <div style="flex:1">
+        <label>📅 วันที่</label>
+        <input id="recordDate" type="date">
+      </div>
+    </div>
+
+    <button id="logoutBtn" class="secondary">🚪 ออกจากระบบ</button>
+  </div>
+
+
+  <div class="columns">
+
+    <!-- รายรับ -->
+    <div class="card">
+      <div class="section-title">💰 รายรับ</div>
+
+      <div id="incomeList"></div>
+
+      <button id="addIncome" class="add">
+        ＋ เพิ่มรายรับ
+      </button>
+    </div>
+
+
+    <!-- รายจ่าย -->
+    <div class="card">
+      <div class="section-title">💸 รายจ่าย</div>
+
+      <div id="expenseList"></div>
+
+      <button id="addExpense" class="add">
+        ＋ เพิ่มรายจ่าย
+      </button>
+    </div>
+
+  </div>
+
+
+  <!-- บันทึก -->
+  <div class="card">
+    <button id="saveBtn" class="save">
+      ☁️ บันทึกประวัติ
+    </button>
+
+    <div id="saveMessage" class="message hidden"></div>
+  </div>
+
+
+  <!-- สรุป -->
+  <div class="card">
+
+    <h2>📊 สรุป</h2>
+
+    <div class="summary-grid">
+
+      <div class="summary-box">
+        <div class="summary-label">รายรับ (บาท)</div>
+        <div id="incomeTotal" class="summary-value green">
+          ฿0.00
+        </div>
+      </div>
+
+      <div class="summary-box">
+        <div class="summary-label">รายจ่าย (บาท)</div>
+        <div id="expenseTotal" class="summary-value red">
+          ฿0.00
+        </div>
+      </div>
+
+    </div>
+
+    <div class="balance">
+      <div>รายรับ − รายจ่าย = เงินคงเหลือ</div>
+
+      <div id="balance" class="balance-value">
+        ฿0.00
+      </div>
+
+      <div id="balanceStatus">
+        ยังไม่มีรายการ
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- ประวัติ -->
+  <div class="card">
+
+    <h2>📜 ประวัติรายการ</h2>
+
+    <div id="history">
+      กำลังโหลด...
+    </div>
+
+  </div>
+
+</div>
+
+</div>
+
+
+<script>
+
+const SUPABASE_URL =
+"https://qfxgyfsufampsaidvvbr.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_A_8mkFi5qADj_onWcm0l7w_WeszJQvN";
+
+const supabaseClient =
+supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+
+// ---------- ตัวช่วย ----------
+
+const $ = id =>
+document.getElementById(id);
+
+function money(number){
+
+  return new Intl.NumberFormat(
+    "th-TH",
+    {
+      style:"currency",
+      currency:"THB"
+    }
+  ).format(number);
+
+}
+
+
+function today(){
+
+  const d = new Date();
+
+  return new Date(
+    Date.UTC(
+      d.getFullYear(),
+      d.getMonth(),
+      d.getDate()
+    )
+  ).toISOString().slice(0,10);
+
+}
+
+
+function usernameToEmail(username){
+
+  return username.trim().toLowerCase()
+    + "@mymoney.app";
+
+}
+
+
+function validUsername(username){
+
+  return /^[a-zA-Z0-9_]{3,30}$/
+    .test(username);
+
+}
+
+
+function showMessage(element,text){
+
+  element.textContent = text;
+  element.classList.remove("hidden");
+
+}
+
+
+function hideMessage(element){
+
+  element.classList.add("hidden");
+
+}
+
+
+// ---------- วันที่ ----------
+
+$("recordDate").value = today();
+
+
+// ---------- สมัครบัญชี ----------
+
+$("registerBtn").addEventListener(
+"click",
+async function(){
+
+  const username =
+    $("username").value.trim().toLowerCase();
+
+  const password =
+    $("password").value;
+
+  if(!validUsername(username)){
+
+    showMessage(
+      $("loginMessage"),
+      "ชื่อผู้ใช้ต้องเป็นภาษาอังกฤษ ตัวเลข หรือ _ และยาว 3-30 ตัว"
+    );
+
+    return;
+  }
+
+  if(password.length < 6){
+
+    showMessage(
+      $("loginMessage"),
+      "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร"
+    );
+
+    return;
+  }
+
+  showMessage(
+    $("loginMessage"),
+    "กำลังสร้างบัญชี..."
+  );
+
+  const {data,error} =
+    await supabaseClient.auth.signUp({
+
+      email:usernameToEmail(username),
+
+      password:password
+
+    });
+
+
+  if(error){
+
+    showMessage(
+      $("loginMessage"),
+      "สร้างบัญชีไม่สำเร็จ: " +
+      error.message
+    );
+
+    return;
+  }
+
+
+  if(!data.user){
+
+    showMessage(
+      $("loginMessage"),
+      "สร้างบัญชีไม่สำเร็จ"
+    );
+
+    return;
+  }
+
+
+  const {error:profileError} =
+    await supabaseClient
+      .from("profiles")
+      .insert({
+
+        id:data.user.id,
+
+        username:username
+
+      });
+
+
+  if(profileError){
+
+    await supabaseClient.auth.signOut();
+
+    showMessage(
+      $("loginMessage"),
+      "สร้างบัญชีไม่สำเร็จ: " +
+      profileError.message
+    );
+
+    return;
+  }
+
+
+  showMessage(
+    $("loginMessage"),
+    "สร้างบัญชีสำเร็จ ✓"
+  );
+
+
+  openApp(
+    data.user,
+    username
+  );
+
+});
+
+
+// ---------- เข้าสู่ระบบ ----------
+
+$("loginBtn").addEventListener(
+"click",
+async function(){
+
+  const username =
+    $("username").value.trim().toLowerCase();
+
+  const password =
+    $("password").value;
+
+
+  if(!validUsername(username) ||
+     password.length < 1){
+
+    showMessage(
+      $("loginMessage"),
+      "กรุณากรอกชื่อผู้ใช้และรหัสผ่าน"
+    );
+
+    return;
+  }
+
+
+  showMessage(
+    $("loginMessage"),
+    "กำลังเข้าสู่ระบบ..."
+  );
+
+
+  const {data,error} =
+    await supabaseClient.auth
+      .signInWithPassword({
+
+        email:usernameToEmail(username),
+
+        password:password
+
+      });
+
+
+  if(error){
+
+    showMessage(
+      $("loginMessage"),
+      "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง"
+    );
+
+    return;
+  }
+
+
+  const {data:profile} =
+    await supabaseClient
+      .from("profiles")
+      .select("username")
+      .eq("id",data.user.id)
+      .single();
+
+
+  openApp(
+    data.user,
+    profile?.username || username
+  );
+
+});
+
+
+// ---------- เปิดแอป ----------
+
+async function openApp(user,username){
+
+  $("loginPage")
+    .classList.add("hidden");
+
+  $("appPage")
+    .classList.remove("hidden");
+
+  $("currentUser").textContent =
+    username;
+
+  clearEntries();
+
+  await loadHistory();
+
+}
+
+
+// ---------- ออกจากระบบ ----------
+
+$("logoutBtn").addEventListener(
+"click",
+async function(){
+
+  await supabaseClient.auth.signOut();
+
+  $("appPage")
+    .classList.add("hidden");
+
+  $("loginPage")
+    .classList.remove("hidden");
+
+  $("username").value="";
+  $("password").value="";
+
+  hideMessage(
+    $("loginMessage")
+  );
+
+});
+
+
+// ---------- รายการ ----------
+
+function addEntry(list){
+
+  const row =
+    document.createElement("div");
+
+  row.className="entry";
+
+  row.innerHTML=`
+
+    <div class="entry-row">
+
+      <input
+        class="description"
+        maxlength="60"
+        placeholder="รายการ เช่น เงินเดือน">
+
+      <input
+        class="amount"
+        type="number"
+        min="0"
+        step="0.01"
+        inputmode="decimal"
+        placeholder="บาท">
+
+    </div>
+
+    <button
+      class="delete"
+      type="button">
+      🗑️ ลบรายการ
+    </button>
+
+  `;
+
+
+  row
+    .querySelector(".delete")
+    .addEventListener(
+      "click",
+      function(){
+
+        row.remove();
+
+        updateSummary();
+
+      }
+    );
+
+
+  row
+    .querySelector(".amount")
+    .addEventListener(
+      "input",
+      updateSummary
+    );
+
+
+  list.appendChild(row);
+
+}
+
+
+$("addIncome").addEventListener(
+"click",
+function(){
+
+  addEntry(
+    $("incomeList")
+  );
+
+});
+
+
+$("addExpense").addEventListener(
+"click",
+function(){
+
+  addEntry(
+    $("expenseList")
+  );
+
+});
+
+
+// ---------- อ่านรายการ ----------
+
+function getEntries(list,type){
+
+  return [
+    ...list.querySelectorAll(".entry")
+  ]
+  .map(row=>{
+
+    const amount =
+      Number(
+        row.querySelector(".amount").value
+      );
+
+    return {
+
+      type:type,
+
+      description:
+        row.querySelector(".description")
+          .value.trim()
+        || "ไม่ระบุรายการ",
+
+      amount:
+        Number.isFinite(amount)
+        ? amount
+        : 0
+
+    };
+
+  })
+  .filter(item =>
+    item.amount > 0
+  );
+
+}
+
+
+// ---------- คำนวณ ----------
+
+function updateSummary(){
+
+  const income =
+    getEntries(
+      $("incomeList"),
+      "income"
+    );
+
+  const expense =
+    getEntries(
+      $("expenseList"),
+      "expense"
+    );
+
+
+  const incomeTotal =
+    income.reduce(
+      (sum,item)=>
+        sum + item.amount,
+      0
+    );
+
+
+  const expenseTotal =
+    expense.reduce(
+      (sum,item)=>
+        sum + item.amount,
+      0
+    );
+
+
+  const balance =
+    incomeTotal - expenseTotal;
+
+
+  $("incomeTotal").textContent =
+    money(incomeTotal);
+
+  $("expenseTotal").textContent =
+    money(expenseTotal);
+
+  $("balance").textContent =
+    money(balance);
+
+
+  if(
+    incomeTotal === 0 &&
+    expenseTotal === 0
+  ){
+
+    $("balanceStatus")
+      .textContent =
+      "ยังไม่มีรายการ";
+
+  }
+  else if(balance > 0){
+
+    $("balanceStatus")
+      .textContent =
+      "เหลือ " + money(balance);
+
+  }
+  else if(balance < 0){
+
+    $("balanceStatus")
+      .textContent =
+      "ขาด " + money(
+        Math.abs(balance)
+      );
+
+  }
+  else{
+
+    $("balanceStatus")
+      .textContent =
+      "รายรับและรายจ่ายเท่ากัน";
+
+  }
+
+}
+
+
+// ---------- ล้างช่อง ----------
+
+function clearEntries(){
+
+  $("incomeList").innerHTML="";
+  $("expenseList").innerHTML="";
+
+  addEntry(
+    $("incomeList")
+  );
+
+  addEntry(
+    $("expenseList")
+  );
+
+  updateSummary();
+
+}
+
+
+// ---------- บันทึก ----------
+
+$("saveBtn").addEventListener(
+"click",
+async function(){
+
+  const {data:{user}} =
+    await supabaseClient.auth
+      .getUser();
+
+
+  if(!user){
+
+    showMessage(
+      $("saveMessage"),
+      "กรุณาเข้าสู่ระบบก่อน"
+    );
+
+    return;
+  }
+
+
+  const date =
+    $("recordDate").value;
+
+
+  if(!date){
+
+    showMessage(
+      $("saveMessage"),
+      "กรุณาเลือกวันที่"
+    );
+
+    return;
+  }
+
+
+  const income =
+    getEntries(
+      $("incomeList"),
+      "income"
+    );
+
+  const expense =
+    getEntries(
+      $("expenseList"),
+      "expense"
+    );
+
+
+  const items =
+    [
+      ...income,
+      ...expense
+    ];
+
+
+  if(items.length === 0){
+
+    showMessage(
+      $("saveMessage"),
+      "กรุณากรอกอย่างน้อย 1 รายการ"
+    );
+
+    return;
+  }
+
+
+  const incomeTotal =
+    income.reduce(
+      (sum,item)=>
+        sum + item.amount,
+      0
+    );
+
+
+  const expenseTotal =
+    expense.reduce(
+      (sum,item)=>
+        sum + item.amount,
+      0
+    );
+
+
+  showMessage(
+    $("saveMessage"),
+    "กำลังบันทึก..."
+  );
+
+
+  const {error} =
+    await supabaseClient
+      .from("money_history")
+      .insert({
+
+        user_id:user.id,
+
+        record_date:date,
+
+        income:incomeTotal,
+
+        expense:expenseTotal,
+
+        items:items
+
+      });
+
+
+  if(error){
+
+    showMessage(
+      $("saveMessage"),
+      "บันทึกไม่สำเร็จ: " +
+      error.message
+    );
+
+    return;
+  }
+
+
+  showMessage(
+    $("saveMessage"),
+    "บันทึกสำเร็จ ✓"
+  );
+
+
+  clearEntries();
+
+  await loadHistory();
+
+});
+
+
+// ---------- โหลดประวัติ ----------
+
+async function loadHistory(){
+
+  $("history").innerHTML =
+    "กำลังโหลด...";
+
+
+  const {data:{user}} =
+    await supabaseClient.auth
+      .getUser();
+
+
+  if(!user){
+
+    return;
+  }
+
+
+  const {data,error} =
+    await supabaseClient
+      .from("money_history")
+      .select(
+        "id,record_date,income,expense,balance,items"
+      )
+      .eq(
+        "user_id",
+        user.id
+      )
+      .order(
+        "record_date",
+        {ascending:false}
+      )
+      .order(
+        "created_at",
+        {ascending:false}
+      );
+
+
+  if(error){
+
+    $("history").innerHTML =
+      "โหลดประวัติไม่สำเร็จ";
+
+    return;
+  }
+
+
+  if(!data || data.length === 0){
+
+    $("history").innerHTML =
+      "ยังไม่มีประวัติ";
+
+    return;
+  }
+
+
+  $("history").innerHTML =
+    data.map(item=>{
+
+      const items =
+        Array.isArray(item.items)
+        ? item.items
+        : [];
+
+
+      const detail =
+        items.map(x=>{
+
+          return (
+            x.type === "income"
+            ? "รับ: "
+            : "จ่าย: "
+          )
+          +
+          x.description
+          +
+          " "
+          +
+          money(
+            Number(x.amount)
+          );
+
+        }).join(" · ");
+
+
+      return `
+
+        <div
+          class="history">
+
+          <div
+            class="history-top">
+
+            <span>
+              📅 ${item.record_date}
+            </span>
+
+            <span>
+              ${money(
+                Number(item.balance)
+              )}
+            </span>
+
+          </div>
+
+          <div
+            class="history-detail">
+
+            รายรับ:
+            ${money(
+              Number(item.income)
+            )}
+
+            ·
+
+            รายจ่าย:
+            ${money(
+              Number(item.expense)
+            )}
+
+          </div>
+
+          <div
+            class="history-detail">
+
+            ${detail}
+
+          </div>
+
+          <button
+            class="delete"
+            onclick="deleteHistory(${item.id})">
+
+            🗑️ ลบประวัติ
+
+          </button>
+
+        </div>
+
+      `;
+
+    }).join("");
+
+}
+
+
+// ---------- ลบประวัติ ----------
+
+async function deleteHistory(id){
+
+  const {data:{user}} =
+    await supabaseClient.auth
+      .getUser();
+
+
+  if(!user){
+    return;
+  }
+
+
+  const ok =
+    confirm(
+      "ต้องการลบประวัตินี้หรือไม่?"
+    );
+
+
+  if(!ok){
+    return;
+  }
+
+
+  const {error} =
+    await supabaseClient
+      .from("money_history")
+      .delete()
+      .eq("id",id)
+      .eq("user_id",user.id);
+
+
+  if(error){
+
+    alert(
+      "ลบไม่สำเร็จ: " +
+      error.message
+    );
+
+    return;
+  }
+
+
+  await loadHistory();
+
+}
+
+
+// ---------- ตรวจ session ----------
+
+(async function(){
+
+  const {
+    data:{
+      session
+    }
+  } =
+    await supabaseClient
+      .auth
+      .getSession();
+
+
+  if(session){
+
+    const {data:profile} =
+      await supabaseClient
+        .from("profiles")
+        .select("username")
+        .eq(
+          "id",
+          session.user.id
