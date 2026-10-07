@@ -4,186 +4,51 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>บัญชีรายรับ-รายจ่าย</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 *{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#f4f6f8;
-  color:#222;
-}
-.container{
-  width:min(900px,94%);
-  margin:20px auto;
-}
-.card{
-  background:white;
-  border-radius:18px;
-  padding:20px;
-  margin-bottom:16px;
-  box-shadow:0 3px 12px rgba(0,0,0,.08);
-}
+body{margin:0;font-family:Arial,sans-serif;background:#f4f6f8;color:#222}
+.container{width:min(900px,94%);margin:20px auto}
+.card{background:white;border-radius:18px;padding:20px;margin-bottom:16px;box-shadow:0 3px 12px rgba(0,0,0,.08)}
 h1,h2,h3{margin-top:0}
-input{
-  width:100%;
-  padding:13px;
-  border:1px solid #ccc;
-  border-radius:10px;
-  font-size:16px;
-  margin:6px 0 12px;
-}
-button{
-  border:0;
-  border-radius:10px;
-  padding:12px 16px;
-  font-size:16px;
-  font-weight:bold;
-  cursor:pointer;
-  background:#222;
-  color:white;
-}
-button.secondary{
-  background:#eee;
-  color:#222;
-}
-button.delete{
-  background:#eee;
-  color:#c00;
-}
+input{width:100%;padding:13px;border:1px solid #ccc;border-radius:10px;font-size:16px;margin:6px 0 12px}
+button{border:0;border-radius:10px;padding:12px 16px;font-size:16px;font-weight:bold;cursor:pointer;background:#222;color:white}
+button.secondary{background:#eee;color:#222}
+button.delete{background:#eee;color:#c00}
 .hidden{display:none!important}
-.center{
-  max-width:430px;
-  margin:60px auto;
-}
-.actions{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-}
+.center{max-width:430px;margin:60px auto}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
 .actions button{flex:1}
-.message{
-  margin-top:12px;
-  padding:10px;
-  border-radius:10px;
-  background:#f1f1f1;
-}
-.datebox{
-  display:flex;
-  gap:12px;
-  align-items:center;
-}
-.datebox label{
-  font-weight:bold;
-  white-space:nowrap;
-}
-.columns{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:16px;
-}
-.section-title{
-  text-align:center;
-  font-size:22px;
-  font-weight:bold;
-  margin-bottom:15px;
-}
-.entry{
-  background:#f7f7f7;
-  border-radius:12px;
-  padding:10px;
-  margin-bottom:10px;
-}
-.entry-row{
-  display:grid;
-  grid-template-columns:1fr 110px;
-  gap:8px;
-}
-.entry input{
-  margin:0;
-}
-.entry button{
-  width:100%;
-  margin-top:8px;
-}
-.add{
-  width:100%;
-  background:#eee;
-  color:#222;
-}
-.save{
-  width:100%;
-  font-size:18px;
-}
-.summary-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
-}
-.summary-box{
-  background:#f7f7f7;
-  border-radius:14px;
-  padding:15px;
-}
-.summary-label{
-  color:#777;
-}
-.summary-value{
-  font-size:24px;
-  font-weight:bold;
-  margin-top:5px;
-}
-.balance{
-  text-align:center;
-  border:2px solid #ddd;
-  border-radius:15px;
-  padding:18px;
-  margin-top:14px;
-}
-.balance-value{
-  font-size:32px;
-  font-weight:bold;
-  margin:5px;
-}
-.history{
-  border-bottom:1px solid #ddd;
-  padding:15px 0;
-}
-.history:last-child{
-  border-bottom:0;
-}
-.history-top{
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  font-weight:bold;
-}
-.history-detail{
-  color:#777;
-  font-size:14px;
-  margin-top:6px;
-}
-.history button{
-  margin-top:9px;
-}
+.message{margin-top:12px;padding:10px;border-radius:10px;background:#f1f1f1}
+.datebox{display:flex;gap:12px;align-items:center}
+.datebox label{font-weight:bold;white-space:nowrap}
+.columns{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.section-title{text-align:center;font-size:22px;font-weight:bold;margin-bottom:15px}
+.entry{background:#f7f7f7;border-radius:12px;padding:10px;margin-bottom:10px}
+.entry-row{display:grid;grid-template-columns:1fr 110px;gap:8px}
+.entry input{margin:0}
+.entry button{width:100%;margin-top:8px}
+.add{width:100%;background:#eee;color:#222}
+.save{width:100%;font-size:18px}
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.summary-box{background:#f7f7f7;border-radius:14px;padding:15px}
+.summary-label{color:#777}
+.summary-value{font-size:24px;font-weight:bold;margin-top:5px}
+.balance{text-align:center;border:2px solid #ddd;border-radius:15px;padding:18px;margin-top:14px}
+.balance-value{font-size:32px;font-weight:bold;margin:5px}
+.history{border-bottom:1px solid #ddd;padding:15px 0}
+.history:last-child{border-bottom:0}
+.history-top{display:flex;justify-content:space-between;gap:10px;font-weight:bold}
+.history-detail{color:#777;font-size:14px;margin-top:6px}
+.history button{margin-top:9px}
 .green{color:green}
 .red{color:#d00}
 
 @media(max-width:600px){
-  .columns{
-    grid-template-columns:1fr;
-  }
-  .summary-grid{
-    grid-template-columns:1fr;
-  }
-  .entry-row{
-    grid-template-columns:1fr;
-  }
-  .datebox{
-    flex-direction:column;
-    align-items:stretch;
-  }
+  .columns{grid-template-columns:1fr}
+  .summary-grid{grid-template-columns:1fr}
+  .entry-row{grid-template-columns:1fr}
+  .datebox{flex-direction:column;align-items:stretch}
 }
 </style>
 </head>
@@ -192,7 +57,6 @@ button.delete{
 
 <div class="container">
 
-<!-- LOGIN -->
 <div id="loginPage" class="center">
   <div class="card">
     <h1>💰 บัญชีรายรับ-รายจ่าย</h1>
@@ -202,7 +66,13 @@ button.delete{
     <input id="username" maxlength="30" placeholder="เช่น somchai">
 
     <label>รหัสผ่าน</label>
-    <input id="password" type="password" maxlength="72" placeholder="อย่างน้อย 6 ตัวอักษร">
+    <input
+      id="password"
+      type="password"
+      inputmode="numeric"
+      maxlength="12"
+      placeholder="รหัสตัวเลข 6-12 หลัก"
+    >
 
     <div class="actions">
       <button id="loginBtn">🔐 เข้าสู่ระบบ</button>
@@ -214,11 +84,12 @@ button.delete{
 </div>
 
 
-<!-- APP -->
 <div id="appPage" class="hidden">
 
   <div class="card">
+
     <div class="datebox">
+
       <div>
         <div style="color:#777">บัญชีที่กำลังใช้งาน</div>
         <strong id="currentUser"></strong>
@@ -228,51 +99,61 @@ button.delete{
         <label>📅 วันที่</label>
         <input id="recordDate" type="date">
       </div>
+
     </div>
 
-    <button id="logoutBtn" class="secondary">🚪 ออกจากระบบ</button>
+    <button id="logoutBtn" class="secondary">
+      🚪 ออกจากระบบ
+    </button>
+
   </div>
 
 
   <div class="columns">
 
-    <!-- รายรับ -->
     <div class="card">
-      <div class="section-title">💰 รายรับ</div>
+
+      <div class="section-title">
+        💰 รายรับ
+      </div>
 
       <div id="incomeList"></div>
 
       <button id="addIncome" class="add">
         ＋ เพิ่มรายรับ
       </button>
+
     </div>
 
 
-    <!-- รายจ่าย -->
     <div class="card">
-      <div class="section-title">💸 รายจ่าย</div>
+
+      <div class="section-title">
+        💸 รายจ่าย
+      </div>
 
       <div id="expenseList"></div>
 
       <button id="addExpense" class="add">
         ＋ เพิ่มรายจ่าย
       </button>
+
     </div>
 
   </div>
 
 
-  <!-- บันทึก -->
   <div class="card">
+
     <button id="saveBtn" class="save">
       ☁️ บันทึกประวัติ
     </button>
 
     <div id="saveMessage" class="message hidden"></div>
+
   </div>
 
 
-  <!-- สรุป -->
   <div class="card">
 
     <h2>📊 สรุป</h2>
@@ -280,37 +161,55 @@ button.delete{
     <div class="summary-grid">
 
       <div class="summary-box">
-        <div class="summary-label">รายรับ (บาท)</div>
-        <div id="incomeTotal" class="summary-value green">
+
+        <div class="summary-label">
+          รายรับ (บาท)
+        </div>
+
+        <div id="incomeTotal"
+             class="summary-value green">
           ฿0.00
         </div>
+
       </div>
 
+
       <div class="summary-box">
-        <div class="summary-label">รายจ่าย (บาท)</div>
-        <div id="expenseTotal" class="summary-value red">
+
+        <div class="summary-label">
+          รายจ่าย (บาท)
+        </div>
+
+        <div id="expenseTotal"
+             class="summary-value red">
           ฿0.00
         </div>
+
       </div>
 
     </div>
 
-    <div class="balance">
-      <div>รายรับ − รายจ่าย = เงินคงเหลือ</div>
 
-      <div id="balance" class="balance-value">
+    <div class="balance">
+
+      <div>
+        รายรับ − รายจ่าย = เงินคงเหลือ
+      </div>
+
+      <div id="balance"
+           class="balance-value">
         ฿0.00
       </div>
 
       <div id="balanceStatus">
         ยังไม่มีรายการ
       </div>
+
     </div>
 
   </div>
 
 
-  <!-- ประวัติ -->
   <div class="card">
 
     <h2>📜 ประวัติรายการ</h2>
@@ -326,25 +225,32 @@ button.delete{
 </div>
 
 
-<script>
+<script type="module">
+
+import {
+  createClient
+}
+from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
 
 const SUPABASE_URL =
 "https://qfxgyfsufampsaidvvbr.supabase.co";
 
+
 const SUPABASE_KEY =
 "sb_publishable_A_8mkFi5qADj_onWcm0l7w_WeszJQvN";
 
+
 const supabaseClient =
-supabase.createClient(
+createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
 
 
-// ---------- ตัวช่วย ----------
-
 const $ = id =>
 document.getElementById(id);
+
 
 function money(number){
 
@@ -393,6 +299,7 @@ function validUsername(username){
 function showMessage(element,text){
 
   element.textContent = text;
+
   element.classList.remove("hidden");
 
 }
@@ -405,12 +312,12 @@ function hideMessage(element){
 }
 
 
-// ---------- วันที่ ----------
-
 $("recordDate").value = today();
 
 
-// ---------- สมัครบัญชี ----------
+/* =========================
+   สร้างบัญชี
+========================= */
 
 $("registerBtn").addEventListener(
 "click",
@@ -422,6 +329,7 @@ async function(){
   const password =
     $("password").value;
 
+
   if(!validUsername(username)){
 
     showMessage(
@@ -432,27 +340,32 @@ async function(){
     return;
   }
 
-  if(password.length < 6){
+
+  if(!/^\d{6,12}$/.test(password)){
 
     showMessage(
       $("loginMessage"),
-      "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร"
+      "รหัสผ่านต้องเป็นตัวเลข 6-12 หลัก"
     );
 
     return;
   }
+
 
   showMessage(
     $("loginMessage"),
     "กำลังสร้างบัญชี..."
   );
 
+
   const {data,error} =
     await supabaseClient.auth.signUp({
 
-      email:usernameToEmail(username),
+      email:
+        usernameToEmail(username),
 
-      password:password
+      password:
+        password
 
     });
 
@@ -461,8 +374,8 @@ async function(){
 
     showMessage(
       $("loginMessage"),
-      "สร้างบัญชีไม่สำเร็จ: " +
-      error.message
+      "สร้างบัญชีไม่สำเร็จ: "
+      + error.message
     );
 
     return;
@@ -494,12 +407,14 @@ async function(){
 
   if(profileError){
 
-    await supabaseClient.auth.signOut();
+    await supabaseClient
+      .auth
+      .signOut();
 
     showMessage(
       $("loginMessage"),
-      "สร้างบัญชีไม่สำเร็จ: " +
-      profileError.message
+      "สร้างบัญชีไม่สำเร็จ: "
+      + profileError.message
     );
 
     return;
@@ -520,7 +435,9 @@ async function(){
 });
 
 
-// ---------- เข้าสู่ระบบ ----------
+/* =========================
+   เข้าสู่ระบบ
+========================= */
 
 $("loginBtn").addEventListener(
 "click",
@@ -533,12 +450,14 @@ async function(){
     $("password").value;
 
 
-  if(!validUsername(username) ||
-     password.length < 1){
+  if(
+    !validUsername(username) ||
+    !/^\d{6,12}$/.test(password)
+  ){
 
     showMessage(
       $("loginMessage"),
-      "กรุณากรอกชื่อผู้ใช้และรหัสผ่าน"
+      "กรุณากรอกชื่อผู้ใช้และรหัสผ่านตัวเลข 6-12 หลัก"
     );
 
     return;
@@ -555,9 +474,11 @@ async function(){
     await supabaseClient.auth
       .signInWithPassword({
 
-        email:usernameToEmail(username),
+        email:
+          usernameToEmail(username),
 
-        password:password
+        password:
+          password
 
       });
 
@@ -589,9 +510,14 @@ async function(){
 });
 
 
-// ---------- เปิดแอป ----------
+/* =========================
+   เปิดแอป
+========================= */
 
-async function openApp(user,username){
+async function openApp(
+  user,
+  username
+){
 
   $("loginPage")
     .classList.add("hidden");
@@ -599,8 +525,10 @@ async function openApp(user,username){
   $("appPage")
     .classList.remove("hidden");
 
-  $("currentUser").textContent =
-    username;
+
+  $("currentUser")
+    .textContent = username;
+
 
   clearEntries();
 
@@ -609,13 +537,18 @@ async function openApp(user,username){
 }
 
 
-// ---------- ออกจากระบบ ----------
+/* =========================
+   ออกจากระบบ
+========================= */
 
 $("logoutBtn").addEventListener(
 "click",
 async function(){
 
-  await supabaseClient.auth.signOut();
+  await supabaseClient
+    .auth
+    .signOut();
+
 
   $("appPage")
     .classList.add("hidden");
@@ -623,8 +556,10 @@ async function(){
   $("loginPage")
     .classList.remove("hidden");
 
+
   $("username").value="";
   $("password").value="";
+
 
   hideMessage(
     $("loginMessage")
@@ -633,14 +568,18 @@ async function(){
 });
 
 
-// ---------- รายการ ----------
+/* =========================
+   เพิ่มรายการ
+========================= */
 
 function addEntry(list){
 
   const row =
     document.createElement("div");
 
+
   row.className="entry";
+
 
   row.innerHTML=`
 
@@ -649,7 +588,8 @@ function addEntry(list){
       <input
         class="description"
         maxlength="60"
-        placeholder="รายการ เช่น เงินเดือน">
+        placeholder="รายการ เช่น เงินเดือน"
+      >
 
       <input
         class="amount"
@@ -657,14 +597,18 @@ function addEntry(list){
         min="0"
         step="0.01"
         inputmode="decimal"
-        placeholder="บาท">
+        placeholder="บาท"
+      >
 
     </div>
+
 
     <button
       class="delete"
       type="button">
+
       🗑️ ลบรายการ
+
     </button>
 
   `;
@@ -719,27 +663,38 @@ function(){
 });
 
 
-// ---------- อ่านรายการ ----------
+/* =========================
+   อ่านรายการ
+========================= */
 
-function getEntries(list,type){
+function getEntries(
+  list,
+  type
+){
 
   return [
     ...list.querySelectorAll(".entry")
   ]
+
   .map(row=>{
 
     const amount =
       Number(
-        row.querySelector(".amount").value
+        row
+          .querySelector(".amount")
+          .value
       );
+
 
     return {
 
       type:type,
 
       description:
-        row.querySelector(".description")
-          .value.trim()
+        row
+          .querySelector(".description")
+          .value
+          .trim()
         || "ไม่ระบุรายการ",
 
       amount:
@@ -750,14 +705,18 @@ function getEntries(list,type){
     };
 
   })
-  .filter(item =>
-    item.amount > 0
+
+  .filter(
+    item =>
+      item.amount > 0
   );
 
 }
 
 
-// ---------- คำนวณ ----------
+/* =========================
+   คำนวณ
+========================= */
 
 function updateSummary(){
 
@@ -766,6 +725,7 @@ function updateSummary(){
       $("incomeList"),
       "income"
     );
+
 
   const expense =
     getEntries(
@@ -791,16 +751,22 @@ function updateSummary(){
 
 
   const balance =
-    incomeTotal - expenseTotal;
+    incomeTotal -
+    expenseTotal;
 
 
-  $("incomeTotal").textContent =
+  $("incomeTotal")
+    .textContent =
     money(incomeTotal);
 
-  $("expenseTotal").textContent =
+
+  $("expenseTotal")
+    .textContent =
     money(expenseTotal);
 
-  $("balance").textContent =
+
+  $("balance")
+    .textContent =
     money(balance);
 
 
@@ -814,22 +780,27 @@ function updateSummary(){
       "ยังไม่มีรายการ";
 
   }
+
   else if(balance > 0){
 
     $("balanceStatus")
       .textContent =
-      "เหลือ " + money(balance);
+      "เหลือ " +
+      money(balance);
 
   }
+
   else if(balance < 0){
 
     $("balanceStatus")
       .textContent =
-      "ขาด " + money(
+      "ขาด " +
+      money(
         Math.abs(balance)
       );
 
   }
+
   else{
 
     $("balanceStatus")
@@ -841,34 +812,49 @@ function updateSummary(){
 }
 
 
-// ---------- ล้างช่อง ----------
+/* =========================
+   ล้างรายการ
+========================= */
 
 function clearEntries(){
 
-  $("incomeList").innerHTML="";
-  $("expenseList").innerHTML="";
+  $("incomeList")
+    .innerHTML="";
+
+  $("expenseList")
+    .innerHTML="";
+
 
   addEntry(
     $("incomeList")
   );
 
+
   addEntry(
     $("expenseList")
   );
+
 
   updateSummary();
 
 }
 
 
-// ---------- บันทึก ----------
+/* =========================
+   บันทึก
+========================= */
 
 $("saveBtn").addEventListener(
 "click",
 async function(){
 
-  const {data:{user}} =
-    await supabaseClient.auth
+  const {
+    data:{
+      user
+    }
+  } =
+    await supabaseClient
+      .auth
       .getUser();
 
 
@@ -903,6 +889,7 @@ async function(){
       $("incomeList"),
       "income"
     );
+
 
   const expense =
     getEntries(
@@ -956,15 +943,20 @@ async function(){
       .from("money_history")
       .insert({
 
-        user_id:user.id,
+        user_id:
+          user.id,
 
-        record_date:date,
+        record_date:
+          date,
 
-        income:incomeTotal,
+        income:
+          incomeTotal,
 
-        expense:expenseTotal,
+        expense:
+          expenseTotal,
 
-        items:items
+        items:
+          items
 
       });
 
@@ -973,8 +965,8 @@ async function(){
 
     showMessage(
       $("saveMessage"),
-      "บันทึกไม่สำเร็จ: " +
-      error.message
+      "บันทึกไม่สำเร็จ: "
+      + error.message
     );
 
     return;
@@ -994,21 +986,28 @@ async function(){
 });
 
 
-// ---------- โหลดประวัติ ----------
+/* =========================
+   โหลดประวัติ
+========================= */
 
 async function loadHistory(){
 
-  $("history").innerHTML =
+  $("history")
+    .innerHTML =
     "กำลังโหลด...";
 
 
-  const {data:{user}} =
-    await supabaseClient.auth
+  const {
+    data:{
+      user
+    }
+  } =
+    await supabaseClient
+      .auth
       .getUser();
 
 
   if(!user){
-
     return;
   }
 
@@ -1025,191 +1024,156 @@ async function loadHistory(){
       )
       .order(
         "record_date",
-        {ascending:false}
+        {
+          ascending:false
+        }
       )
       .order(
         "created_at",
-        {ascending:false}
+        {
+          ascending:false
+        }
       );
 
 
   if(error){
 
-    $("history").innerHTML =
+    $("history")
+      .innerHTML =
       "โหลดประวัติไม่สำเร็จ";
 
     return;
   }
 
 
-  if(!data || data.length === 0){
+  if(
+    !data ||
+    data.length === 0
+  ){
 
-    $("history").innerHTML =
+    $("history")
+      .innerHTML =
       "ยังไม่มีประวัติ";
 
     return;
   }
 
 
-  $("history").innerHTML =
-    data.map(item=>{
+  $("history")
+    .innerHTML =
 
-      const items =
-        Array.isArray(item.items)
-        ? item.items
-        : [];
+    data.map(
+      item=>{
+
+        const items =
+          Array.isArray(item.items)
+          ? item.items
+          : [];
 
 
-      const detail =
-        items.map(x=>{
+        const detail =
+          items.map(
+            x=>{
 
-          return (
-            x.type === "income"
-            ? "รับ: "
-            : "จ่าย: "
+              return (
+                x.type === "income"
+                ? "รับ: "
+                : "จ่าย: "
+              )
+              +
+              x.description
+              +
+              " "
+              +
+              money(
+                Number(
+                  x.amount
+                )
+              );
+
+            }
           )
-          +
-          x.description
-          +
-          " "
-          +
-          money(
-            Number(x.amount)
-          );
-
-        }).join(" · ");
+          .join(" · ");
 
 
-      return `
+        return `
 
-        <div
-          class="history">
+          <div class="history">
 
-          <div
-            class="history-top">
+            <div class="history-top">
 
-            <span>
-              📅 ${item.record_date}
-            </span>
+              <span>
+                📅 ${item.record_date}
+              </span>
 
-            <span>
+              <span>
+                ${money(
+                  Number(
+                    item.balance
+                  )
+                )}
+              </span>
+
+            </div>
+
+
+            <div class="history-detail">
+
+              รายรับ:
               ${money(
-                Number(item.balance)
+                Number(item.income)
               )}
-            </span>
+
+              ·
+
+              รายจ่าย:
+              ${money(
+                Number(item.expense)
+              )}
+
+            </div>
+
+
+            <div class="history-detail">
+
+              ${detail}
+
+            </div>
+
+
+            <button
+              class="delete"
+              onclick="deleteHistory(${item.id})">
+
+              🗑️ ลบประวัติ
+
+            </button>
 
           </div>
 
-          <div
-            class="history-detail">
+        `;
 
-            รายรับ:
-            ${money(
-              Number(item.income)
-            )}
-
-            ·
-
-            รายจ่าย:
-            ${money(
-              Number(item.expense)
-            )}
-
-          </div>
-
-          <div
-            class="history-detail">
-
-            ${detail}
-
-          </div>
-
-          <button
-            class="delete"
-            onclick="deleteHistory(${item.id})">
-
-            🗑️ ลบประวัติ
-
-          </button>
-
-        </div>
-
-      `;
-
-    }).join("");
+      }
+    ).join("");
 
 }
 
 
-// ---------- ลบประวัติ ----------
+/* =========================
+   ลบประวัติ
+========================= */
 
 async function deleteHistory(id){
 
-  const {data:{user}} =
-    await supabaseClient.auth
-      .getUser();
-
-
-  if(!user){
-    return;
-  }
-
-
-  const ok =
-    confirm(
-      "ต้องการลบประวัตินี้หรือไม่?"
-    );
-
-
-  if(!ok){
-    return;
-  }
-
-
-  const {error} =
-    await supabaseClient
-      .from("money_history")
-      .delete()
-      .eq("id",id)
-      .eq("user_id",user.id);
-
-
-  if(error){
-
-    alert(
-      "ลบไม่สำเร็จ: " +
-      error.message
-    );
-
-    return;
-  }
-
-
-  await loadHistory();
-
-}
-
-
-// ---------- ตรวจ session ----------
-
-(async function(){
-
   const {
     data:{
-      session
+      user
     }
   } =
     await supabaseClient
       .auth
-      .getSession();
+      .getUser();
 
 
-  if(session){
-
-    const {data:profile} =
-      await supabaseClient
-        .from("profiles")
-        .select("username")
-        .eq(
-          "id",
-          session.user.id
+  if(!user){
+   
